@@ -1,16 +1,29 @@
-#Assume that
-#Run with -path
-#script.ps1 -path 
+#Pre Steps
+
+#Edit your mercurial.ini for the following removing the hashes
+#[extensions]
+#hggit = 
+#hgext.bookmarks =
+
+#[git]
+#intree = True
+
+#Check all ok running 'hg help hggit'
 
 
-#Take input for path of M folders
+#Run with -localpath and -remotepath
+#Exmaple:
+#script.ps1 -remotepath \\share\folder -localpath C:\testfolder 
+
+#Take input for path of remote folders and local folder
 param (
-    [Parameter(Mandatory=$true)][string]$path
+    [Parameter(Mandatory=$true)][string]$remotepath,
+    [Parameter(Mandatory=$true)][string]$localpath
  )
 
 #List all subfolders
-$folderRecurseList=Get-ChildItem -Recurse -Directory -Name $path
-$folderList=Get-ChildItem -Directory -Name $path
+$folderRecurseList=Get-ChildItem -Recurse -Directory -Name $remotepath
+$folderList=Get-ChildItem -Directory -Name $remotepath
 
 #write-output $folderList
 #write-output $folderRecurseList
@@ -31,10 +44,27 @@ foreach ($element in $folderRecurseList) {
 
 #$c = Compare-Object -ReferenceObject $folderList -DifferenceObject $folderRecurseList -PassThru
 #write-output $c
-
-
 write-host $repos
 
-
 #Run the clone
-#& copy 
+#& copy
+foreach ($element in $repos) {
+    $leaf = $element|split-path -leaf
+    $remlocpath = "$($element) $($localpath)\$($leaf)"
+    write-host $remlocpath
+    $continue = Read-Host -Prompt 'Clone local? [y or yes]'
+    if ( ($continue -eq "y") -or ($continue -eq "yes")) {
+        write-host "Cloning"
+        #& hg clone $remlocpath
+        #hg bookmark -r default master
+        #hg gexport --debug
+        #git config --bool core.bare false
+        #git reset HEAD -- .
+        & '$localpath' ./mkdir test
+
+        #PUSH TO BB
+    }
+    else {
+        write-host "Thats a no then"
+    }
+}
